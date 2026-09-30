@@ -1,0 +1,40 @@
+{% extends "students/base.html" %}
+{% block title %}{% if is_edit %}Edit Student{% else %}Add Student{% endif %}{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb"><ol class="breadcrumb small mb-2">
+  <li class="breadcrumb-item"><a href="{% url 'dashboard' %}" class="text-decoration-none">Dashboard</a></li>
+  <li class="breadcrumb-item"><a href="{% url 'student_list' %}" class="text-decoration-none">Students</a></li>
+  <li class="breadcrumb-item active" aria-current="page">{% if is_edit %}Edit{% else %}Add{% endif %}</li>
+</ol></nav>
+
+<h1 class="h4 fw-bold mb-4">{% if is_edit %}Edit {{ student.name }}{% else %}Add Student{% endif %}</h1>
+
+<div class="card" style="max-width:720px"><div class="card-body p-4">
+  <form method="post" novalidate data-loading>
+    {% csrf_token %}
+    <h2 class="h6 fw-bold mb-3">Student Information</h2>
+    {% if form.non_field_errors %}<div class="alert alert-danger">{{ form.non_field_errors }}</div>{% endif %}
+    <div class="row g-3">
+      {% for field in form %}
+      <div class="col-12 {% if field.name == 'phone' or field.name == 'registration_date' %}col-md-6{% endif %}">
+        <label for="{{ field.id_for_label }}" class="form-label fw-semibold">{{ field.label }}{% if field.field.required %} <span class="text-danger">*</span>{% endif %}</label>
+        {{ field }}
+        {% for error in field.errors %}<div class="text-danger small mt-1"><i class="bi bi-exclamation-circle me-1"></i>{{ error }}</div>{% endfor %}
+      </div>
+      {% endfor %}
+    </div>
+    <div class="d-flex flex-column flex-sm-row gap-2 mt-4">
+      <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg me-1"></i>Save Student</button>
+      <a href="{% if is_edit %}{% url 'student_detail' student.pk %}{% else %}{% url 'student_list' %}{% endif %}" class="btn btn-light border">Cancel</a>
+    </div>
+  </form>
+</div></div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Mark fields with server-side errors as invalid
+  document.querySelectorAll(".text-danger.small").forEach(e => { const c = e.previousElementSibling; if (c && c.classList) c.classList.add("is-invalid"); });
+</script>
+{% endblock %}

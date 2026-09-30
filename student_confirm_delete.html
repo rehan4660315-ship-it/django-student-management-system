@@ -1,0 +1,21 @@
+{% extends "students/base.html" %}
+{% load student_extras %}
+{% block title %}Delete Student{% endblock %}
+
+{% block content %}
+<div class="card border-danger-subtle mx-auto" style="max-width:520px"><div class="card-body p-4 text-center">
+  <div class="stat-icon bg-danger bg-opacity-10 text-danger mx-auto mb-3"><i class="bi bi-exclamation-triangle"></i></div>
+  <h1 class="h5 fw-bold">Delete Student?</h1>
+  <p class="text-muted mb-3">Are you sure you want to delete:</p>
+  <div class="d-inline-flex align-items-center gap-2 border rounded-3 px-3 py-2 mb-3 text-start">
+    <span class="avatar">{{ student.name|initials }}</span>
+    <div><div class="fw-semibold">{{ student.name }}</div><div class="small text-muted">{{ student.email }}</div></div>
+  </div>
+  <p class="text-danger small fw-semibold">This action cannot be undone.</p>
+  <form method="post" class="d-flex justify-content-center gap-2" data-loading>
+    {% csrf_token %}
+    <a href="{% url 'student_detail' student.pk %}" class="btn btn-light border">Cancel</a>
+    <button type="submit" class="btn btn-danger"><i class="bi bi-trash me-1"></i>Delete Student</button>
+  </form>
+</div></div>
+{% endblock %}

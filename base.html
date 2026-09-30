@@ -1,0 +1,96 @@
+{% load student_extras %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Dashboard{% endblock %} · EduManage</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <style>
+    :root { --bs-primary: #4f46e5; --bs-primary-rgb: 79,70,229; }
+    body { background: #f5f6fa; color: #1f2937; }
+    .btn-primary { --bs-btn-bg: #4f46e5; --bs-btn-border-color: #4f46e5; --bs-btn-hover-bg: #4338ca; --bs-btn-hover-border-color: #4338ca; --bs-btn-active-bg: #3730a3; --bs-btn-active-border-color: #3730a3; }
+    .btn-outline-primary { --bs-btn-color: #4f46e5; --bs-btn-border-color: #4f46e5; --bs-btn-hover-bg: #4f46e5; --bs-btn-hover-border-color: #4f46e5; }
+    a { color: #4f46e5; }
+    .sidebar { width: 250px; min-height: 100vh; background: #111827; }
+    .sidebar .brand { color: #fff; font-weight: 700; }
+    .sidebar .nav-link { color: #9ca3af; border-radius: .5rem; padding: .6rem .9rem; }
+    .sidebar .nav-link:hover { color: #fff; background: rgba(255,255,255,.06); }
+    .sidebar .nav-link.active { color: #fff; background: #4f46e5; }
+    .sidebar .nav-link.disabled { opacity: .45; }
+    .card { border: 0; border-radius: .9rem; box-shadow: 0 1px 3px rgba(16,24,40,.08); }
+    .stat-icon { width: 44px; height: 44px; border-radius: .7rem; display: grid; place-items: center; font-size: 1.3rem; }
+    .avatar { width: 38px; height: 38px; border-radius: 50%; background: #e0e7ff; color: #4338ca; display: inline-grid; place-items: center; font-weight: 600; font-size: .85rem; flex-shrink: 0; }
+    .avatar-lg { width: 84px; height: 84px; font-size: 1.8rem; }
+    .table > :not(caption) > * > * { padding: .85rem 1rem; }
+    .table-hover tbody tr:hover { background: #f9fafb; }
+    .badge-course { background: #eef2ff; color: #4338ca; font-weight: 500; }
+    .toast-area { position: fixed; top: 1rem; right: 1rem; z-index: 1080; width: min(360px, calc(100vw - 2rem)); }
+    .btn, .form-control { min-height: 38px; }
+  </style>
+</head>
+<body>
+{% with current=request.resolver_match.url_name %}
+<div class="d-flex">
+  <aside class="offcanvas-lg offcanvas-start sidebar text-white" tabindex="-1" id="sidebar">
+    <div class="offcanvas-header d-lg-none">
+      <span class="brand fs-5">EduManage</span>
+      <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" data-bs-target="#sidebar" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body d-flex flex-column p-3">
+      <a href="{% url 'dashboard' %}" class="brand fs-5 text-decoration-none mb-4 d-none d-lg-flex align-items-center gap-2">
+        <i class="bi bi-mortarboard-fill"></i> EduManage
+      </a>
+      <ul class="nav nav-pills flex-column gap-1">
+        <li><a class="nav-link {% if current == 'dashboard' %}active{% endif %}" href="{% url 'dashboard' %}"><i class="bi bi-house me-2"></i>Dashboard</a></li>
+        <li><a class="nav-link {% if current == 'student_list' or current == 'student_detail' or current == 'student_update' or current == 'student_delete' %}active{% endif %}" href="{% url 'student_list' %}"><i class="bi bi-people me-2"></i>Students</a></li>
+        <li><a class="nav-link {% if current == 'student_create' %}active{% endif %}" href="{% url 'student_create' %}"><i class="bi bi-person-plus me-2"></i>Add Student</a></li>
+        <li><span class="nav-link disabled"><i class="bi bi-bar-chart me-2"></i>Reports</span></li>
+        <li><a class="nav-link" href="{% url 'admin:index' %}"><i class="bi bi-gear me-2"></i>Admin</a></li>
+      </ul>
+    </div>
+  </aside>
+
+  <div class="flex-grow-1" style="min-width:0">
+    <header class="bg-white border-bottom px-3 px-lg-4 py-2 d-flex align-items-center gap-3">
+      <button class="btn btn-outline-secondary d-lg-none" data-bs-toggle="offcanvas" data-bs-target="#sidebar" aria-label="Open menu"><i class="bi bi-list"></i></button>
+      <form class="flex-grow-1" style="max-width:420px" method="get" action="{% url 'student_list' %}">
+        <div class="input-group">
+          <span class="input-group-text bg-transparent"><i class="bi bi-search"></i></span>
+          <input type="search" name="q" class="form-control" placeholder="Search students..." value="{{ request.GET.q }}">
+        </div>
+      </form>
+      <div class="ms-auto d-flex align-items-center gap-2">
+        <span class="avatar">{{ request.user.username|default:"Admin"|initials }}</span>
+        <span class="d-none d-md-inline small fw-semibold">{{ request.user.username|default:"Admin" }}</span>
+      </div>
+    </header>
+
+    <main class="p-3 p-lg-4">
+      <div class="toast-area">
+        {% for message in messages %}
+          <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show shadow-sm" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      </div>
+      {% block content %}{% endblock %}
+    </main>
+    <footer class="text-center text-muted small pb-3">&copy; {% now "Y" %} EduManage</footer>
+  </div>
+</div>
+{% endwith %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  // Auto-dismiss success alerts and disable submit buttons after click (loading state)
+  setTimeout(() => document.querySelectorAll(".alert-success").forEach(a => bootstrap.Alert.getOrCreateInstance(a).close()), 4000);
+  document.querySelectorAll("form[data-loading]").forEach(f => f.addEventListener("submit", () => {
+    const b = f.querySelector("button[type=submit]");
+    if (b) { b.disabled = true; b.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Saving...'; }
+  }));
+</script>
+{% block scripts %}{% endblock %}
+</body>
+</html>
